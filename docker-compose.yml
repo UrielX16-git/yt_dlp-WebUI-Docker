@@ -1,0 +1,15 @@
+services:
+  ytextract:
+    build: .
+    container_name: ytextract
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./downloads:/app/downloads
+    restart: unless-stopped
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
