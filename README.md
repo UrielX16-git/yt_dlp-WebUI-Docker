@@ -67,10 +67,3 @@ Asegúrate de revisar las políticas de uso de las plataformas de las que descar
 - `templates/`: Plantillas HTML
 - `static/`: Archivos CSS y JS
 
-## Contribuciones
-
-Las contribuciones son bienvenidas. Por favor, abre un issue o pull request en GitHub.
-
-## Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver el archivo LICENSE para más detalles.

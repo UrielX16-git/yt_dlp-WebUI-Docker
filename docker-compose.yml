@@ -1,7 +1,7 @@
 services:
-  ytextract:
+  yt-dlp-webui:
     build: .
-    container_name: ytextract
+    container_name: yt-dlp-WebUI
     ports:
       - "5000:5000"
     volumes:
