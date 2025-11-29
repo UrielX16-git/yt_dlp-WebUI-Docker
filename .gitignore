@@ -34,3 +34,5 @@ staticfiles
 *.egg-info/
 dist/
 build/
+walkthrough.md
+implementation_plan.md
