@@ -25,4 +25,4 @@ EXPOSE 5000
 
 # Script de entrada para actualizar yt-dlp antes de iniciar
 # Esto asegura que siempre se use la versión más reciente al reiniciar el contenedor
-CMD pip install --upgrade yt-dlp && gunicorn -w 4 -b 0.0.0.0:5000 app:app
+CMD pip install --upgrade yt-dlp && gunicorn -w 4 -b 0.0.0.0:5000 --timeout 120 app:app

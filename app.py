@@ -24,7 +24,7 @@ if not os.path.exists(DOWNLOAD_FOLDER):
 download_status = {}
 
 def cleanup_loop():
-    """Hilo que revisa y borra archivos expirados cada minuto"""
+    """Hilo que revisa y borra archivos expirados"""
     while True:
         try:
             now = time.time()
@@ -46,7 +46,7 @@ def cleanup_loop():
         except Exception as e:
             logger.error(f"Error en ciclo de limpieza: {e}")
         
-        time.sleep(60) # Revisar cada minuto
+        time.sleep(600) # Revisar cada 10 minutos
 
 # Iniciar hilo de limpieza
 cleanup_thread = threading.Thread(target=cleanup_loop, daemon=True)
@@ -288,7 +288,8 @@ def get_history():
                     'type': 'file',
                     'size': stat.st_size,
                     'date': datetime.datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
-                    'remaining_seconds': int(remaining)
+                    'remaining_seconds': int(remaining),
+                    'expires_at': stat.st_mtime + EXPIRATION_TIME
                 })
             elif os.path.isdir(path):
                 # Es una carpeta (playlist)
@@ -308,7 +309,8 @@ def get_history():
                     'type': 'playlist',
                     'size': total_size,
                     'date': datetime.datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
-                    'remaining_seconds': int(remaining)
+                    'remaining_seconds': int(remaining),
+                    'expires_at': stat.st_mtime + EXPIRATION_TIME
                 })
 
         files.sort(key=lambda x: x['date'], reverse=True)
