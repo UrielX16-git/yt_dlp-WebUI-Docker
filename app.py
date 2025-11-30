@@ -89,9 +89,7 @@ def run_download_thread(task_id, url, format_type, quality, subtitles, subtitle_
             with yt_dlp.YoutubeDL({'quiet': True, 'extract_flat': True}) as ydl_temp:
                 info_temp = ydl_temp.extract_info(url, download=False)
                 if info_temp.get('_type') == 'playlist':
-                    playlist_title = info_temp.get('title', 'Playlist')
-                    safe_title = "".join([c for c in playlist_title if c.isalpha() or c.isdigit() or c in (' ', '-', '_')]).strip()
-                    output_template = f'{DOWNLOAD_FOLDER}/{safe_title}/%(title)s.%(ext)s'
+                    # Flattened: download directly to root
                     task['is_playlist'] = True
         except:
             pass
@@ -329,6 +327,16 @@ def delete_file(filename):
         return jsonify({'message': 'Elemento eliminado'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/view/<path:filename>')
+def view_file(filename):
+    try:
+        path = os.path.join(DOWNLOAD_FOLDER, filename)
+        if os.path.exists(path):
+            os.utime(path, None) # Touch
+    except:
+        pass
+    return send_from_directory(DOWNLOAD_FOLDER, filename, as_attachment=False)
 
 @app.route('/downloads/<path:filename>')
 def download_file(filename):

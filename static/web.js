@@ -84,6 +84,15 @@ async function startDownload() {
     const subtitles = document.getElementById('subsCheckbox').checked;
     const subtitleLang = document.getElementById('subsLangSelect').value;
     const downloadPlaylist = document.getElementById('playlistCheckbox').checked;
+
+    // Reset UI before showing progress
+    document.getElementById('progressStatus').textContent = 'Iniciando...';
+    document.getElementById('progressPercent').textContent = '0%';
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressBar').style.backgroundColor = 'var(--accent-color)';
+    document.getElementById('speed').textContent = '0 MiB/s';
+    document.getElementById('eta').textContent = '00:00';
+
     showStep('progress');
 
     try {
@@ -184,10 +193,12 @@ function renderHistory(files) {
 
         let icon = 'fa-file-video';
         let downloadBtn = `<a href="/downloads/${f.name}" class="btn-icon small" title="Descargar"><i class="fas fa-download"></i></a>`;
+        let viewBtn = `<a href="/view/${f.name}" target="_blank" class="btn-icon small" title="Ver"><i class="fas fa-eye"></i></a>`;
 
         if (f.type === 'playlist') {
             icon = 'fa-folder';
             downloadBtn = `<button class="btn-icon small disabled" disabled title="Es una carpeta"><i class="fas fa-folder-open"></i></button>`;
+            viewBtn = '';
         }
 
         // Usamos data-expires para que el timer local lo lea
@@ -200,6 +211,7 @@ function renderHistory(files) {
                 </div>
             </div>
             <div class="file-actions">
+                ${viewBtn}
                 ${downloadBtn}
                 <button onclick="deleteFile('${f.name}')" class="btn-icon small danger" title="Borrar"><i class="fas fa-trash"></i></button>
             </div>
