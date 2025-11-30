@@ -72,6 +72,12 @@ def progress_hook(d, task_id):
             task['status'] = 'downloading'
             task['speed'] = d.get('_speed_str', 'N/A')
             task['eta'] = d.get('_eta_str', 'N/A')
+            
+            # Playlist info
+            info = d.get('info_dict', {})
+            if 'playlist_index' in info and 'playlist_count' in info:
+                task['playlist_index'] = info['playlist_index']
+                task['playlist_count'] = info['playlist_count']
         except:
             pass
     elif d['status'] == 'finished':
@@ -84,15 +90,8 @@ def run_download_thread(task_id, url, format_type, quality, subtitles, subtitle_
     
     output_template = f'{DOWNLOAD_FOLDER}/%(title)s.%(ext)s'
     if download_playlist:
-        # Si el usuario eligió descargar playlist, obtener título
-        try:
-            with yt_dlp.YoutubeDL({'quiet': True, 'extract_flat': True}) as ydl_temp:
-                info_temp = ydl_temp.extract_info(url, download=False)
-                if info_temp.get('_type') == 'playlist':
-                    # Flattened: download directly to root
-                    task['is_playlist'] = True
-        except:
-            pass
+        # Force playlist mode if user requested it
+        task['is_playlist'] = True
 
     ydl_opts = {
         'outtmpl': output_template,

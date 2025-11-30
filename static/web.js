@@ -164,24 +164,33 @@ function startPolling() {
         document.getElementById('eta').textContent = status.eta || '--';
 
         if (status.status === 'downloading') {
-            txt.textContent = 'Descargando...';
+            if (status.playlist_index && status.playlist_count) {
+                txt.textContent = `Descargando video ${status.playlist_index} de ${status.playlist_count}...`;
+            } else {
+                txt.textContent = 'Descargando...';
+            }
         } else if (status.status === 'processing') {
-            txt.textContent = 'Procesando...';
-            bar.style.backgroundColor = '#f59e0b';
+            // Don't show "Processing..." for playlists if we have index info, to avoid flickering
+            if (!status.is_playlist) {
+                txt.textContent = 'Procesando...';
+                bar.style.backgroundColor = '#f59e0b';
+            }
         } else if (status.status === 'completed') {
             clearInterval(pollInterval);
             txt.textContent = '¡Completado!';
             bar.style.backgroundColor = '#10b981';
-            setTimeout(loadHistory, 5000);
+            setTimeout(loadHistory, 2000); // Faster reload
 
-            if (status.filename) {
-                window.location.href = `/downloads/${status.filename}`;
-            } else if (status.is_playlist) {
+            if (status.is_playlist) {
                 alert('Playlist descargada correctamente. Disponible en el historial.');
+                showStep('url');
+            } else if (status.filename) {
+                window.location.href = `/downloads/${status.filename}`;
+                showStep('url');
             } else {
                 alert('Descarga completada. Revisa el historial.');
+                showStep('url');
             }
-            showStep('url');
         } else if (status.status === 'error' || status.status === 'cancelled') {
             clearInterval(pollInterval);
             alert('Estado: ' + status.status + (status.error ? '\n' + status.error : ''));
