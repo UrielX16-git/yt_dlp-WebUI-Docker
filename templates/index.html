@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Descarga Videos</title>
+    <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,7 +15,9 @@
     <div class="main-wrapper">
         <div class="container">
             <div class="header-actions">
-                <h1>Descarga <span class="gradient-text">Videos</span></h1>
+                <h1><img src="{{ url_for('static', filename='icon.png') }}" alt="Logo"
+                        style="height: 40px; vertical-align: middle; margin-right: 10px;">Descarga <span
+                        class="gradient-text">Videos</span></h1>
             </div>
 
             <!-- Paso 1: URL -->
