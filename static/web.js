@@ -11,6 +11,48 @@ document.getElementById('urlInput').addEventListener('keypress', (e) => {
 });
 document.getElementById('btnCheck').addEventListener('click', checkUrl);
 
+async function checkCookieStatus() {
+    try {
+        const res = await fetch('/api/cookies-status');
+        const data = await res.json();
+        const btn = document.getElementById('btnUploadCookies');
+        if (data.exists) {
+            btn.style.backgroundColor = '#10b981'; // Green
+            btn.title = "Cookies activas (YouTube)";
+        } else {
+            btn.style.backgroundColor = '#ef4444'; // Red
+            btn.title = "Sin cookies (YouTube)";
+        }
+    } catch (e) {
+        console.error("Error checking cookies:", e);
+    }
+}
+
+async function uploadCookies(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const res = await fetch('/api/upload-cookies', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.error);
+
+        alert('Cookies subidas correctamente.');
+        checkCookieStatus(); // Refresh status
+    } catch (e) {
+        alert('Error al subir cookies: ' + e.message);
+    } finally {
+        input.value = ''; // Reset input
+    }
+}
+
 function setType(type) {
     currentType = type;
     document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
@@ -307,3 +349,4 @@ function showLoader(show) {
 
 // Init
 loadHistory();
+checkCookieStatus();

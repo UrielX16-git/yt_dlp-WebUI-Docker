@@ -15,6 +15,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 DOWNLOAD_FOLDER = '/app/downloads'
+COOKIES_FILE = '/app/cookies.txt'
 EXPIRATION_TIME = 4 * 3600  # 4 horas en segundos
 
 if not os.path.exists(DOWNLOAD_FOLDER):
@@ -101,6 +102,16 @@ def run_download_thread(task_id, url, format_type, quality, subtitles, subtitle_
         'restrictfilenames': True,
         'progress_hooks': [lambda d: progress_hook(d, task_id)],
     }
+
+    # Usar cookies solo si es YouTube y el archivo existe
+    # Mejorar detección de URLs de YouTube
+    is_youtube = 'youtube.com' in url or 'youtu.be' in url
+    if is_youtube:
+        if os.path.exists(COOKIES_FILE):
+            ydl_opts['cookiefile'] = COOKIES_FILE
+            logger.info(f"Usando cookies para: {url} (Archivo: {COOKIES_FILE})")
+        else:
+            logger.warning(f"URL de YouTube detectada pero no hay cookies: {url}")
 
     if subtitles:
         # Configuración base de subtítulos
@@ -207,6 +218,14 @@ def get_info():
 
     try:
         ydl_opts = {'noplaylist': True}
+        
+        # Usar cookies solo si es YouTube y el archivo existe
+        is_youtube = 'youtube.com' in url or 'youtu.be' in url
+        if is_youtube:
+            if os.path.exists(COOKIES_FILE):
+                ydl_opts['cookiefile'] = COOKIES_FILE
+                logger.info(f"Usando cookies para info de: {url}")
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             
@@ -346,6 +365,33 @@ def download_file(filename):
     except:
         pass
     return send_from_directory(DOWNLOAD_FOLDER, filename, as_attachment=True)
+
+@app.route('/api/upload-cookies', methods=['POST'])
+def upload_cookies():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No se envió ningún archivo'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'Nombre de archivo vacío'}), 400
+        
+    try:
+        # Validar formato Netscape
+        content = file.read().decode('utf-8', errors='ignore')
+        if not content.startswith('# Netscape HTTP Cookie File') and not content.startswith('# HTTP Cookie File'):
+             return jsonify({'error': 'El archivo no tiene formato Netscape/Mozilla válido (debe empezar con # Netscape HTTP Cookie File)'}), 400
+        
+        # Reset file pointer
+        file.seek(0)
+        file.save(COOKIES_FILE)
+        return jsonify({'message': 'Cookies subidas correctamente'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/cookies-status')
+def cookies_status():
+    exists = os.path.exists(COOKIES_FILE)
+    return jsonify({'exists': exists})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
